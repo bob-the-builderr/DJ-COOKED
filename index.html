@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السمسمية السويسي — أستوديو العزف التفاعلي</title>
+    <meta name="description" content="أستوديو السمسمية السويسي التفاعلي — اعزف وسجّل آلة القناة الموسيقية التراثية مباشرة في المتصفح.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-text">السمسمية السويسي</div>
+        <div class="loading-sub">أستوديو العزف التفاعلي</div>
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Top SaaS Header Bar -->
+        <header class="studio-header">
+            <div class="header-brand">
+                <div class="brand-logo-icon">🪕</div>
+                <div class="brand-meta">
+                    <h1 class="brand-title">السمسمية السويسي</h1>
+                    <span class="brand-sub">Al-Simsimiyya Studio</span>
+                </div>
+            </div>
+
+            <!-- Center Bar: Maqam Selector -->
+            <div class="header-center">
+                <div class="scale-bar" id="scaleSelector">
+                    <span class="scale-bar-label">المقام:</span>
+                    <button class="scale-btn active" data-scale="rast">راست</button>
+                    <button class="scale-btn" data-scale="bayati">بياتي</button>
+                    <button class="scale-btn" data-scale="saba">صبا</button>
+                    <button class="scale-btn" data-scale="hijaz">حجاز</button>
+                    <button class="scale-btn" data-scale="nahawand">نهاوند</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Studio Workspace (No-scroll SaaS Viewport) -->
+        <main class="studio-workspace">
+            
+            <!-- Instrument Stage Area -->
+            <section class="instrument-stage" id="instrumentSection">
+                <div class="ambient-glow"></div>
+
+                <div class="instrument-container" id="instrumentContainer">
+                    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+
+                    <svg class="instrument-svg" id="instrumentSvg" viewBox="0 0 500 700" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- Wood grain gradient -->
+                            <linearGradient id="woodGrain" x1="0" y1="0" x2="0.3" y2="1">
+                                <stop offset="0%" stop-color="#5a3e1b"/>
+                                <stop offset="25%" stop-color="#6d4c22"/>
+                                <stop offset="50%" stop-color="#7a5628"/>
+                                <stop offset="75%" stop-color="#6d4c22"/>
+                                <stop offset="100%" stop-color="#543a18"/>
+                            </linearGradient>
+
+                            <!-- Wood grain dark -->
+                            <linearGradient id="woodDark" x1="0" y1="0" x2="0.2" y2="1">
+                                <stop offset="0%" stop-color="#3d2a12"/>
+                                <stop offset="50%" stop-color="#4a3318"/>
+                                <stop offset="100%" stop-color="#3d2a12"/>
+                            </linearGradient>
+
+                            <!-- Gold frame gradient -->
+                            <linearGradient id="goldFrame" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#e8c878"/>
+                                <stop offset="40%" stop-color="#d4a574"/>
+                                <stop offset="100%" stop-color="#8b6914"/>
+                            </linearGradient>
+
+                            <!-- Crossbar gradient -->
+                            <linearGradient id="crossbarGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#a07830"/>
+                                <stop offset="50%" stop-color="#8b6914"/>
+                                <stop offset="100%" stop-color="#6b4f12"/>
+                            </linearGradient>
+
+                            <!-- Soundbox face gradient -->
+                            <linearGradient id="soundboxFace" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#7a5628"/>
+                                <stop offset="100%" stop-color="#543a18"/>
+                            </linearGradient>
+
+                            <!-- String glow filter -->
+                            <filter id="stringGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="4" result="blur"/>
+                                <feMerge>
+                                    <feMergeNode in="blur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+
+                            <!-- Soft shadow filter -->
+                            <filter id="softShadow">
+                                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.5)"/>
+                            </filter>
+
+                            <!-- Instrument body shadow -->
+                            <filter id="bodyShadow">
+                                <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="rgba(0,0,0,0.4)"/>
+                            </filter>
+
+                            <!-- Geometric pattern for soundhole -->
+                            <pattern id="geoPattern" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                                <rect width="12" height="12" fill="none"/>
+                                <path d="M6,0 L12,6 L6,12 L0,6 Z" fill="none" stroke="rgba(212,165,116,0.3)" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- ===== Soundbox ===== -->
+                        <g filter="url(#bodyShadow)">
+                            <!-- Main body -->
+                            <rect class="frame-body" x="180" y="440" width="140" height="150" rx="18" ry="18"
+                                  fill="url(#woodGrain)" stroke="url(#goldFrame)" stroke-width="2.5"/>
+
+                            <!-- Soundbox face overlay -->
+                            <rect x="188" y="448" width="124" height="134" rx="14" ry="14"
+                                  fill="url(#soundboxFace)" opacity="0.4"/>
+
+                            <!-- Wood grain lines -->
+                            <g class="decorative-pattern" stroke="rgba(139,105,20,0.2)" stroke-width="0.5" fill="none">
+                                <line x1="195" y1="460" x2="195" y2="570"/>
+                                <line x1="205" y1="455" x2="205" y2="575"/>
+                                <line x1="220" y1="452" x2="220" y2="578"/>
+                                <line x1="250" y1="450" x2="250" y2="580"/>
+                                <line x1="280" y1="452" x2="280" y2="578"/>
+                                <line x1="295" y1="455" x2="295" y2="575"/>
+                                <line x1="305" y1="460" x2="305" y2="570"/>
+                            </g>
+                        </g>
+
+                        <!-- Sound hole (rosette) -->
+                        <circle cx="250" cy="515" r="26" fill="url(#woodDark)" stroke="url(#goldFrame)" stroke-width="1.5"/>
+                        <circle cx="250" cy="515" r="22" fill="url(#geoPattern)" stroke="rgba(212,165,116,0.3)" stroke-width="0.8"/>
+                        <circle cx="250" cy="515" r="16" fill="none" stroke="rgba(212,165,116,0.25)" stroke-width="0.6"/>
+                        <circle cx="250" cy="515" r="10" fill="none" stroke="rgba(212,165,116,0.2)" stroke-width="0.4"/>
+                        <circle cx="250" cy="515" r="4" fill="rgba(20,15,8,0.9)"/>
+
+                        <!-- Decorative inlays on soundbox -->
+                        <g class="decorative-pattern">
+                            <rect x="192" y="452" width="8" height="8" rx="2" fill="none" stroke="rgba(212,165,116,0.2)" stroke-width="0.6" transform="rotate(45 196 456)"/>
+                            <rect x="300" y="452" width="8" height="8" rx="2" fill="none" stroke="rgba(212,165,116,0.2)" stroke-width="0.6" transform="rotate(45 304 456)"/>
+                            <rect x="192" y="560" width="8" height="8" rx="2" fill="none" stroke="rgba(212,165,116,0.2)" stroke-width="0.6" transform="rotate(45 196 564)"/>
+                            <rect x="300" y="560" width="8" height="8" rx="2" fill="none" stroke="rgba(212,165,116,0.2)" stroke-width="0.6" transform="rotate(45 304 564)"/>
+                        </g>
+
+                        <!-- ===== Arms ===== -->
+                        <!-- Left arm -->
+                        <path d="M 186,440 C 155,370 140,280 150,190 Q 155,140 175,108"
+                              fill="none" stroke="url(#goldFrame)" stroke-width="10" stroke-linecap="round"
+                              filter="url(#softShadow)"/>
+                        <!-- Left arm inner line -->
+                        <path class="arm-decoration" d="M 186,430 C 160,365 148,280 156,195 Q 160,150 177,115"
+                              fill="none" stroke="rgba(212,165,116,0.15)" stroke-width="1" stroke-linecap="round"/>
+
+                        <!-- Right arm -->
+                        <path d="M 314,440 C 345,370 360,280 350,190 Q 345,140 325,108"
+                              fill="none" stroke="url(#goldFrame)" stroke-width="10" stroke-linecap="round"
+                              filter="url(#softShadow)"/>
+                        <!-- Right arm inner line -->
+                        <path class="arm-decoration" d="M 314,430 C 340,365 352,280 344,195 Q 340,150 323,115"
+                              fill="none" stroke="rgba(212,165,116,0.15)" stroke-width="1" stroke-linecap="round"/>
+
+                        <!-- ===== Crossbar ===== -->
+                        <rect x="170" y="100" width="160" height="16" rx="4" ry="4"
+                              fill="url(#crossbarGrad)" stroke="rgba(212,165,116,0.3)" stroke-width="1"/>
+                        <!-- Crossbar highlight -->
+                        <rect x="172" y="101" width="156" height="5" rx="2" ry="2"
+                              fill="rgba(240,200,135,0.15)"/>
+                        <!-- Crossbar shadow line -->
+                        <line x1="172" y1="114" x2="328" y2="114"
+                              stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+
+                        <!-- ===== Tuning Pegs ===== -->
+                        <g id="tuningPegs">
+                            <!-- Peg 1 -->
+                            <circle cx="192" cy="95" r="5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="192" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 2 -->
+                            <circle cx="215" cy="95" r="5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="215" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 3 -->
+                            <circle cx="238" cy="95" r="5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="238" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 4 -->
+                            <circle cx="261" cy="95" r="5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="261" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 5 -->
+                            <circle cx="284" cy="95" r="5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="284" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 6 -->
+                            <circle cx="296" cy="95" r="4.5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="296" cy="95" r="2" fill="#3d2a12"/>
+                            <!-- Peg 7 -->
+                            <circle cx="308" cy="95" r="4.5" fill="#6b4f12" stroke="#a07830" stroke-width="1.2"/>
+                            <circle cx="308" cy="95" r="2" fill="#3d2a12"/>
+                        </g>
+
+                        <!-- ===== Bridge (on soundbox top) ===== -->
+                        <rect x="198" y="446" width="104" height="6" rx="2" ry="2"
+                              fill="#4a3318" stroke="rgba(212,165,116,0.2)" stroke-width="0.8"/>
+
+                        <!-- ===== Strings (interactive) ===== -->
+                        <g id="stringsGroup">
+                            <!-- String hit areas (invisible, wider for easy clicking) -->
+                            <path class="string-hitarea" id="hitarea-0" d="M 192 116 L 202 448" data-index="0"/>
+                            <path class="string-hitarea" id="hitarea-1" d="M 215 116 L 219 448" data-index="1"/>
+                            <path class="string-hitarea" id="hitarea-2" d="M 238 116 L 236 448" data-index="2"/>
+                            <path class="string-hitarea" id="hitarea-3" d="M 261 116 L 253 448" data-index="3"/>
+                            <path class="string-hitarea" id="hitarea-4" d="M 284 116 L 270 448" data-index="4"/>
+                            <path class="string-hitarea" id="hitarea-5" d="M 296 116 L 282 448" data-index="5"/>
+                            <path class="string-hitarea" id="hitarea-6" d="M 308 116 L 294 448" data-index="6"/>
+
+                            <!-- Visible strings -->
+                            <path class="string" id="string-0" d="M 192 116 L 202 448" data-index="0"
+                                  stroke="#c49030" stroke-width="3" fill="none"
+                                  data-x1="192" data-y1="116" data-x2="202" data-y2="448"/>
+
+                            <path class="string" id="string-1" d="M 215 116 L 219 448" data-index="1"
+                                  stroke="#d4a050" stroke-width="2.7" fill="none"
+                                  data-x1="215" data-y1="116" data-x2="219" data-y2="448"/>
+
+                            <path class="string" id="string-2" d="M 238 116 L 236 448" data-index="2"
+                                  stroke="#e0b868" stroke-width="2.4" fill="none"
+                                  data-x1="238" data-y1="116" data-x2="236" data-y2="448"/>
+
+                            <path class="string" id="string-3" d="M 261 116 L 253 448" data-index="3"
+                                  stroke="#f0cc78" stroke-width="2.1" fill="none"
+                                  data-x1="261" data-y1="116" data-x2="253" data-y2="448"/>
+
+                            <path class="string" id="string-4" d="M 284 116 L 270 448" data-index="4"
+                                  stroke="#e8c878" stroke-width="1.8" fill="none"
+                                  data-x1="284" data-y1="116" data-x2="270" data-y2="448"/>
+
+                            <path class="string" id="string-5" d="M 296 116 L 282 448" data-index="5"
+                                  stroke="#f0d898" stroke-width="1.5" fill="none"
+                                  data-x1="296" data-y1="116" data-x2="282" data-y2="448"/>
+
+                            <path class="string" id="string-6" d="M 308 116 L 294 448" data-index="6"
+                                  stroke="#f8e8b8" stroke-width="1.2" fill="none"
+                                  data-x1="308" data-y1="116" data-x2="294" data-y2="448"/>
+                        </g>
+
+                        <!-- ===== Note Labels ===== -->
+                        <g id="noteLabels">
+                            <g class="note-label-group" data-index="0">
+                                <rect class="note-label-bg" x="188" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="202" y="474" id="noteLabel-0">دو</text>
+                            </g>
+                            <g class="note-label-group" data-index="1">
+                                <rect class="note-label-bg" x="205" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="219" y="474" id="noteLabel-1">ري</text>
+                            </g>
+                            <g class="note-label-group" data-index="2">
+                                <rect class="note-label-bg" x="222" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="236" y="474" id="noteLabel-2">مي ½♭</text>
+                            </g>
+                            <g class="note-label-group" data-index="3">
+                                <rect class="note-label-bg" x="239" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="253" y="474" id="noteLabel-3">فا</text>
+                            </g>
+                            <g class="note-label-group" data-index="4">
+                                <rect class="note-label-bg" x="256" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="270" y="474" id="noteLabel-4">صول</text>
+                            </g>
+                            <g class="note-label-group" data-index="5">
+                                <rect class="note-label-bg" x="268" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="282" y="474" id="noteLabel-5">لا</text>
+                            </g>
+                            <g class="note-label-group" data-index="6">
+                                <rect class="note-label-bg" x="280" y="465" width="28" height="18" rx="4"/>
+                                <text class="note-label" x="294" y="474" id="noteLabel-6">سي ½♭</text>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Instrument Controls Strip: Keys + Strum Button -->
+                <div class="instrument-controls-strip">
+                    <div class="key-hints" id="keyHints">
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-0">A</div>
+                            <span class="key-note" id="keyNote-0">دو</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-1">S</div>
+                            <span class="key-note" id="keyNote-1">ري</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-2">D</div>
+                            <span class="key-note" id="keyNote-2">مي ½♭</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-3">F</div>
+                            <span class="key-note" id="keyNote-3">فا</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-4">G</div>
+                            <span class="key-note" id="keyNote-4">صول</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-5">H</div>
+                            <span class="key-note" id="keyNote-5">لا</span>
+                        </div>
+                        <div class="key-hint">
+                            <div class="key-cap" id="keyCap-6">J</div>
+                            <span class="key-note" id="keyNote-6">سي ½♭</span>
+                        </div>
+                    </div>
+
+                    <button class="strum-btn" id="strumBtn" title="عزف جميع الأوتار معاً (Space)">
+                        <span class="strum-icon">🎶</span>
+                        <span>عزف كامل</span>
+                        <kbd class="strum-kbd">Space</kbd>
+                    </button>
+                </div>
+
+                <!-- Live Performance Recorder Bar (Always in View on Desktop & Mobile!) -->
+                <div class="recorder-bar" id="recorderPanel">
+                    <div class="recorder-main-controls">
+                        <button class="rec-btn rec-btn-record" id="recRecordBtn" title="تسجيل">
+                            <span class="rec-btn-icon">⏺</span>
+                            <span class="rec-btn-label">تسجيل</span>
+                        </button>
+                        <button class="rec-btn rec-btn-stop" id="recStopBtn" disabled title="إيقاف">
+                            <span class="rec-btn-icon">⏹</span>
+                            <span class="rec-btn-label">إيقاف</span>
+                        </button>
+                    </div>
+
+                    <div class="recorder-timer" id="recorderTimer">
+                        <span class="timer-dot" id="timerDot"></span>
+                        <span class="timer-display" id="timerDisplay">00:00</span>
+                    </div>
+
+                    <div class="recorder-status" id="recorderStatus">جاهز للتسجيل</div>
+
+                    <!-- Mobile Drawer Open Button (Visible on Mobile) -->
+                    <button class="mobile-drawer-btn" id="mobileDrawerOpenBtn" title="التسجيلات المحفوظة وهندسة الصوت">
+                        <span class="drawer-btn-icon">📁</span>
+                        <span class="drawer-btn-label">التسجيلات</span>
+                        <span class="drawer-btn-count" id="drawerRecordingsCount">0</span>
+                    </button>
+                </div>
+
+                <p class="tap-instruction" id="tapInstruction">🎵 انقر على الأوتار أو المفاتيح للعزف</p>
+            </section>
+
+            <!-- Side Dock on Desktop / Slide-up Drawer on Mobile -->
+            <aside class="studio-sidebar" id="studioSidebar">
+                <!-- Mobile Drawer Header -->
+                <div class="drawer-mobile-header">
+                    <div class="drawer-pull-bar"></div>
+                    <div class="drawer-mobile-title">
+                        <span>📁 التسجيلات والمؤثرات</span>
+                    </div>
+                    <button class="drawer-close-btn" id="mobileDrawerCloseBtn" aria-label="إغلاق">✕</button>
+                </div>
+
+                <!-- Audio Rack / Effects Card -->
+                <div class="sidebar-card controls-card" id="controlsPanel">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="card-icon">🎛️</span>
+                            <span>هندسة الصوت</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="control-row">
+                            <div class="control-label-group">
+                                <label class="control-label" for="volumeSlider">🔊 مستوى الصوت</label>
+                                <span class="control-value" id="volumeValue">70%</span>
+                            </div>
+                            <input type="range" class="saas-slider" id="volumeSlider" min="0" max="100" value="70">
+                        </div>
+
+                        <div class="control-row">
+                            <div class="control-label-group">
+                                <label class="control-label" for="reverbSlider">🏛️ صدى الصندوق (Reverb)</label>
+                                <span class="control-value" id="reverbValue">30%</span>
+                            </div>
+                            <input type="range" class="saas-slider" id="reverbSlider" min="0" max="100" value="30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Recordings Card -->
+                <div class="sidebar-card recordings-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span class="card-icon">🎵</span>
+                            <span>التسجيلات المحفوظة</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="recordings-list" id="recordingsList">
+                            <div class="recordings-empty" id="recordingsEmpty">
+                                <span>🎵</span> لا توجد تسجيلات بعد — اضغط تسجيل وابدأ العزف
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </aside>
+        </main>
+
+        <!-- Mobile Drawer Backdrop -->
+        <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
